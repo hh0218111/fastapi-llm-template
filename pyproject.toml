@@ -1,3 +1,7 @@
+# ============================================================
+# 项目元数据 —— uv/pip 读这里管理依赖（等价于加强版 requirements.txt）
+# 锁文件 uv.lock 锁精确版本，进 Git 保证「我这能跑 = 你那能跑」
+# ============================================================
 [project]
 name = "fastapi-llm-template"
 version = "0.1.0"
@@ -6,24 +10,28 @@ readme = "README.md"
 authors = [
     { name = "cxyHU", email = "STu@sty.hx.edu.cn" }
 ]
+# 锁死 3.12+：TaskGroup、更好的错误提示、性能提升
 requires-python = ">=3.12"
+
+# ---- 运行时依赖（uv add xxx 会自动写进来）----
 dependencies = [
-    "fastapi>=0.162.0",
-    "httpx>=0.28.1",
-    "passlib[bcrypt]>=1.7.4",
-    "pydantic-settings>=2.16.2",
-    "python-jose[cryptography]>=3.5.0",
-    "python-multipart>=0.0.33",
-    "uvicorn[standard]>=0.54.0",
+    "fastapi>=0.162.0",          # Web 框架：路由 + 校验 + 依赖注入 + 自动 OpenAPI 文档
+    "httpx>=0.28.1",             # 异步 HTTP 客户端：调 LLM API、D3 并发 demo 用
+    "passlib[bcrypt]>=1.7.4",    # 密码哈希（bcrypt 单向加密，绝不存明文）—— D5 鉴权用
+    "pydantic-settings>=2.16.2", # 从 .env 读配置（密钥不进 Git）—— D2 配置管理用
+    "python-jose[cryptography]>=3.5.0", # JWT 签发/验签（HS256）—— D5 鉴权用
+    "python-multipart>=0.0.33",  # 表单解析（OAuth2PasswordRequestForm 登录表单需要）
+    "uvicorn[standard]>=0.54.0", # ASGI 服务器：把 FastAPI 跑起来（standard 带 uvloop 加速）
 ]
 
 # 应用项目（非库）：不构建/安装自身，uv run 直接跑 app/ 下的代码
 [tool.uv]
 package = false
 
+# ---- 开发依赖（只在开发环境装，uv add --dev xxx）----
 [dependency-groups]
 dev = [
-    "mypy>=2.4.1",
-    "pytest>=9.2.0",
-    "ruff>=0.17.3",
+    "mypy>=2.4.1",    # 静态类型检查：类型标注写错了编译期就报
+    "pytest>=9.2.0",  # 测试框架：D4 起写接口测试
+    "ruff>=0.17.3",   # lint + 格式化（Rust 写的，飞快）：uv run ruff check app/
 ]
